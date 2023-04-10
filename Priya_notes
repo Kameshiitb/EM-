@@ -48,11 +48,10 @@ In this Assignment, the goal is to find the number of clusters of a multivariate
 
 
 _____________________________________________________________________________________________________________________________________________
-####################IMPROVMENT IMPROVMENT IMPROVMENT IMPROVMENT_________________ <X : dat> make a replacement in function
 _____________________________________________________________________________________________________________________________________________
 
 GMMforD <- function(X, C = 2, tol = 1e-5, maxit = 1e3) 
-                  <GMMforD <- function(dat, C = 2, tol = 1e-5, maxit = 1e3)>
+               
 {
   n <- nrow(X)
   p <- ncol(X)
