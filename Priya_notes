@@ -40,3 +40,65 @@ In this Assignment, the goal is to find the number of clusters of a multivariate
     
     Using BIC as a criteria, find the best model for $C = 2,3,4,5$ and the corresponding estimates. Save your best model as `best.model`. This `best.model` should contain the output from the `GMMforD` function.
     
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------
+
+GMMforD <- function(X, C = 2, tol = 1e-5, maxit = 1e3)
+{
+  n <- nrow(X)
+  p <- ncol(X)
+  
+  # initialize parameters
+  pi.list <- rep(1/C, C)
+  mu <- list()
+  Sigma <- list()
+  for (c in 1:C) {
+    mu[[c]] <- apply(X, 2, sample, 1)[,1]
+    Sigma[[c]] <- cov(X)
+  }
+  Ep <- matrix(1/C, n, C)
+  
+  # EM algorithm
+  for (iter in 1:maxit) {
+    # E-step
+    for (c in 1:C) {
+      Ep[,c] <- pi.list[c] * dmvnorm(X, mu[[c]], Sigma[[c]])
+    }
+    Ep <- Ep / rowSums(Ep)
+    
+    # M-step
+    Nk <- rowSums(Ep)
+    pi.list <- Nk / n
+    for (c in 1:C) {
+      mu[[c]] <- colSums(X * Ep[,c]) / Nk[c]
+      Sigma[[c]] <- (t(X) %*% (Ep[,c] * t(X))) / Nk[c] - outer(mu[[c]], mu[[c]])
+    }
+    
+    # check convergence
+    pi.diff <- max(abs(pi.list - pi.list.old))
+    mu.diff <- max(sapply(1:C, function(c) max(abs(mu[[c]] - mu.old[[c]]))))
+    Sigma.diff <- max(sapply(1:C, function(c) max(abs(Sigma[[c]] - Sigma.old[[c]]))))
+    if (pi.diff < tol && mu.diff < tol && Sigma.diff < tol) {
+      break
+    }
+    
+    # update old parameters
+    pi.list.old <- pi.list
+    mu.old <- mu
+    Sigma.old <- Sigma
+  }
+  
+  # compute BIC
+  loglik <- sum(log(apply(Ep, 1, function(ep) sum(pi.list * ep))))
+  k <- C * (p*(p+1)/2 + 1) - 1
+  BIC <- -2 * loglik + k * log(n)
+  
+  # return results
+  return(list("pi" = pi.list, "mu" = mu, "Sigma" = Sigma, "Ep" = Ep, "BIC" = BIC))
+}
