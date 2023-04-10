@@ -1,1 +1,45 @@
+import numpy as np
 
+# Define the probability density function for a normal distribution
+def normal_pdf(x, mu, sigma):
+    return 1 / np.sqrt(2 * np.pi * sigma*2) * np.exp(-0.5 * (x - mu)**2 / sigma*2)
+
+# Generate some data from a mixture of two normal distributions
+np.random.seed(123)
+n = 1000
+p = 0.4
+mu1, sigma1 = 0, 1
+mu2, sigma2 = 4, 2
+z = np.random.binomial(1, p, n)
+x = np.zeros(n)
+for i in range(n):
+    if z[i] == 0:
+        x[i] = np.random.normal(mu1, sigma1)
+    else:
+        x[i] = np.random.normal(mu2, sigma2)
+
+# Initialize the parameters
+mu1_hat, mu2_hat = np.random.normal(), np.random.normal()
+sigma1_hat, sigma2_hat = abs(np.random.normal()), abs(np.random.normal())
+p_hat = 0.5
+
+# Run the EM algorithm
+for i in range(100):
+    # E-step
+    gamma1 = p_hat * normal_pdf(x, mu1_hat, sigma1_hat)
+    gamma2 = (1 - p_hat) * normal_pdf(x, mu2_hat, sigma2_hat)
+    gamma_sum = gamma1 + gamma2
+    gamma1 /= gamma_sum
+    gamma2 /= gamma_sum
+    
+    # M-step
+    n1 = np.sum(gamma1)
+    n2 = np.sum(gamma2)
+    mu1_hat = np.sum(gamma1 * x) / n1
+    mu2_hat = np.sum(gamma2 * x) / n2
+    sigma1_hat = np.sqrt(np.sum(gamma1 * (x - mu1_hat)**2) / n1)
+    sigma2_hat = np.sqrt(np.sum(gamma2 * (x - mu2_hat)**2) / n2)
+    p_hat = n2 / n
+    
+    # Print the current estimates
+    print(f"Iteration {i+1}: mu1={mu1_hat:.3f}, mu2={mu2_hat:.3f}, sigma1={sigma1_hat:.3f}, sigma2={sigma2_hat:.3f}, p={p_hat:.3f}")
