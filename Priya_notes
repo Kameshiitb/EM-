@@ -1,1 +1,42 @@
-EM algrithom
+In this Assignment, the goal is to find the number of clusters of a multivariate Gaussian mixture model for the dataset, and return the parameters. Recall that the joint distribution of the observed $\mathbf{x}$ is:$$
+  f(\mathbf{x}|\theta) = \sum_{c=1}^{C}\pi_c f_1(\mathbf{x}|\mu_c, \Sigma_c)
+  $$
+    
+    where $\mu_c \in \mathbb{R}^p$, $\Sigma_c \in \mathbb{R}^{p \times p}$ and $$
+    f_c(\mathbf{x} \mid \mu_c, \sigma^2_c) = \left(\dfrac{1}{2\pi } \right)^{p/2} \dfrac{1}{|\Sigma_c|^{1/2}} \exp\left\{-\dfrac{(\mathbf{x}-\mu_c)^T \Sigma_c^{-1} (\mathbf{x} - \mu_c)}{2}  \right\}\,.
+    $$
+      
+      The dataset is available here:
+      
+      ```{r}
+    
+    dat <- read.table("https://dvats.github.io/assets/course/mth210/MixG_data/221376.txt")
+    dat <- as.matrix(dat)  # you will need to convert to matrix
+    ```
+    
+ The data contains $X_1, X_2, \dots, X_{500}$ from a 4-dimensional mixture of Gaussian, where the number of clusters is either 2,3,4 or 5.
+    
+    Write a function that fits an EM algorithm and return MLE estimates of all parameters for a given cluster size. The last line of the function should be as indicated in the code below:
+      
+    
+    GMMforD <- function(X, C = 2, tol = 1e-5, maxit = 1e3)
+    {
+      ....
+      return(list("pi" = pi.list, "mu" = mu, "Sigma" = Sigma, "Ep" = Ep, "BIC" = BIC))
+    }
+    ```
+    
+    That is, the function should return a list with components:
+      
+      -   `pi` vector of estimates of $\pi_1, \pi_2, \dots, \pi_C$.
+    
+    -   `mu` list of estimates of $\mu_1, \mu_2, \dots, \mu_C$
+      
+      -   `Sigma` list of estimates of $\Sigma_1, \Sigma_2, \dots, \Sigma_C$
+      
+      -   `Ep` an $n \times C$ matrix of probabilities of each observation being assigned a cluster.
+    
+    -   `BIC` the BIC value using the above estimates.
+    
+    Using BIC as a criteria, find the best model for $C = 2,3,4,5$ and the corresponding estimates. Save your best model as `best.model`. This `best.model` should contain the output from the `GMMforD` function.
+    
